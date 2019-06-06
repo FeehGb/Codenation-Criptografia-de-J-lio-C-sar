@@ -58,7 +58,7 @@ const post = ( dados, token) => {
         
         console.log(`StatusCode: ${res.statusCode}`)
         console.log(body)
-        
+         
     })
     
 }
