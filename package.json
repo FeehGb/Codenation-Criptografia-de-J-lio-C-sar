@@ -1,0 +1,22 @@
+{
+  "name": "codenation",
+  "version": "1.0.0",
+  "description": "Desafio codenation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FeehGb/Codenation-Criptografia-de-J-lio-C-sar.git"
+  },
+  "author": "Felipe Augusto Gonçalves Basilio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FeehGb/Codenation-Criptografia-de-J-lio-C-sar/issues"
+  },
+  "homepage": "https://github.com/FeehGb/Codenation-Criptografia-de-J-lio-C-sar#readme",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}

@@ -3,10 +3,8 @@ const fs        = require('fs'          )
 const crypto    = require('crypto'      )
 const https     = require('https'       )
 
-
-// Constantes
 const nomeDoArquivo = "answer.json"
-const token = "f0ab3298322ae37b8033e7161e8432dc435ac55f";
+const token = "f0ab3298322ae37b8033e7161e8432dc435ac55f"
 
 const descriptografar  = ( json ) => {
     
@@ -14,21 +12,19 @@ const descriptografar  = ( json ) => {
     let numero_casas    = json["numero_casas"               ]
     let letras          = [...json["cifrado"]               ]
     
-    let textoDecifrado = letras.reduce(( textoCriado, letraAtual, index, self ) => {
+    let textoDescriptografado = letras.reduce(( textoCriado, letraAtual, index, self ) => {
         
         let posicaoAtual    = alfabeto.indexOf(letraAtual)
         let posicaoNova     = ( posicaoAtual ) - numero_casas
         while ( posicaoNova  < 0 ) 
             posicaoNova += alfabeto.length
         
-        letraDesifrada = /(\w)/.test(letraAtual) ? alfabeto[posicaoNova] : letraAtual
-        
+        letraDesifrada = posicaoAtual > 0 ? alfabeto[posicaoNova] : letraAtual
         return  textoCriado += letraDesifrada
         
     },"")
     
-    return textoDecifrado
-    
+    return textoDescriptografado
 }
 
 const pegarDadosApi = (token) => {
@@ -44,32 +40,44 @@ const pegarDadosApi = (token) => {
 }
 
 const criarArquivo = (nome, dados, encoding = "utf8") => 
-    fs.writeFileSync(nome, dados, "utf8", ( err ) => {
+    fs.writeFile(nome, dados, encoding, ( err ) => {
         if (err) throw err
+        else console.log("s")
     })
 
 const post = ( dados, token) => {
-    console.log(dados)
     
-    /* let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution`
-    var req = request.post(url,(error, res, body) => {
-        if (error)
-            return
-        
-        console.log(`StatusCode: ${res.statusCode}`)
-        console.log(body)
+    console.log()
+    formData = {
+            file        : fs.createReadStream(`${__dirname}/${nomeDoArquivo}`)
+        ,   token
+        ,   filetype    : 'json'
+        ,   filename    : nomeDoArquivo.replace(".json","")
+    }
+    headers = {
+        //    "Content-Type"      : "multipart/form-data"
+        //,   "Content-Length"    : `${JSON.stringify(dados).length}`
+            "Authorization"     : `${token}`
+    }
     
-    })
-    let form = req.form();
-    form.append('file', fs.createReadStream(nomeDoArquivo)); */
+    let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution`
+    request.post({url, formData, headers},
+        (error, res, body) => {
+            if (error)
+                return
+            
+            console.log(`StatusCode: ${res.statusCode}`)
+            console.log(body, res)
+        })
+
     
     
     
-    let req  = request({
+    /* let req  = request({
         headers: {
             "Content-Type": "multipart/form-data",
             "Content-Length": `${JSON.stringify(dados).length}`,
-            "Authorization" : "Bearer f0ab3298322ae37b8033e7161e8432dc435ac55f"
+            "Authorization" : `${token}`
         },
         url: `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`,
         method: 'POST',
@@ -81,24 +89,16 @@ const post = ( dados, token) => {
             console.log(err)
         
         console.log(res, body)
-    });
-    
-    
-    
-    
-    
-    
-    
-    
+    }); */
     
 }
 
-
 pegarDadosApi(token).then(( dados ) => {
     criarArquivo( nomeDoArquivo, dados )
-}).catch(err => console.log(err));
+}).catch(err => console.log(err))
 
-const lerArquivo = ( arquivo ) => fs.readFileSync( arquivo )
+
+const lerArquivo = ( arquivo ) => fs.readFile( __dirname + "/" + arquivo, () =>{} )
 
 dadosDoArquivo   = lerArquivo(nomeDoArquivo)
 answerJson       = JSON.parse(dadosDoArquivo)
