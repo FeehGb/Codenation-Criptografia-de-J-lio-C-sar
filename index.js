@@ -51,15 +51,45 @@ const criarArquivo = (nome, dados, encoding = "utf8") =>
 const post = ( dados, token) => {
     console.log(dados)
     
-    let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`
-    request.post(url,dados,(error, res, body) => {
+    /* let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution`
+    var req = request.post(url,(error, res, body) => {
         if (error)
             return
         
         console.log(`StatusCode: ${res.statusCode}`)
         console.log(body)
-         
+    
     })
+    let form = req.form();
+    form.append('file', fs.createReadStream(nomeDoArquivo)); */
+    
+    
+    
+    let req  = request({
+        headers: {
+            "Content-Type": "multipart/form-data",
+            "Content-Length": `${JSON.stringify(dados).length}`,
+            "Authorization" : "Bearer f0ab3298322ae37b8033e7161e8432dc435ac55f"
+        },
+        url: `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`,
+        method: 'POST',
+        form :{
+            "file": fs.createReadStream(`./${nomeDoArquivo}`)
+        }
+    }, function (err, res, body) {
+        if (err)
+            console.log(err)
+        
+        console.log(res, body)
+    });
+    
+    
+    
+    
+    
+    
+    
+    
     
 }
 
