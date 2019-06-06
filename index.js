@@ -40,7 +40,7 @@ const pegarDadosApi = (token) => {
 }
 
 const criarArquivo = (nome, dados, encoding = "utf8") => 
-    fs.writeFile(nome, dados, encoding, ( err ) => {
+    fs.writeFileSync(nome, dados, encoding, ( err ) => {
         if (err) throw err
         else console.log("s")
     })
@@ -92,26 +92,34 @@ const post = ( dados, token) => {
     }); */
     
 }
+const lerArquivo = ( arquivo ) => fs.readFileSync( `${__dirname}/${arquivo}` )
 
-pegarDadosApi(token).then(( dados ) => {
+const criarSha1 = ( texto ) => { 
+    let criarHash    = crypto.createHash('sha1')
+    let dadosHash    = criarHash.update( texto, 'utf-8')
+    let hashGerado   = dadosHash.digest('hex')
+    
+    return hashGerado;
+}
+pegarDadosApi(token).then(async ( dados ) => {
+    
     criarArquivo( nomeDoArquivo, dados )
+    
+
+    dadosDoArquivo   = lerArquivo(nomeDoArquivo)
+    answerJson       = JSON.parse(dadosDoArquivo)
+    descriptografado = descriptografar(answerJson)
+    hashGerado       = criarSha1(descriptografado)
+
+    answerJson['decifrado'           ] = descriptografado
+    answerJson['resumo_criptografico'] = hashGerado
+
+    post(answerJson, token)
+    
 }).catch(err => console.log(err))
 
 
-const lerArquivo = ( arquivo ) => fs.readFile( __dirname + "/" + arquivo, () =>{} )
 
-dadosDoArquivo   = lerArquivo(nomeDoArquivo)
-answerJson       = JSON.parse(dadosDoArquivo)
-descriptografado = descriptografar(answerJson)
-
-let criarHash    = crypto.createHash('sha1')
-let dadosHash    = criarHash.update( descriptografado, 'utf-8')
-let hashGerado   = dadosHash.digest('hex')
-
-answerJson['decifrado'           ] = descriptografado
-answerJson['resumo_criptografico'] = hashGerado
-
-post(answerJson, token)
 
 /* console.log(JSON.stringify(answerJson))
 console.log("hash : ", hashGerado)
