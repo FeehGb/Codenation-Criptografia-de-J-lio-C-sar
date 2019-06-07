@@ -12,19 +12,21 @@ const descriptografar  = ( json ) => {
     let numero_casas    = json["numero_casas"               ]
     let letras          = [...json["cifrado"]               ]
     
-    let textoDescriptografado = letras.reduce(( textoCriado, letraAtual, index, self ) => {
+    let textoDecifrado = letras.reduce(( textoCriado, letraAtual, index, self ) => {
         
         let posicaoAtual    = alfabeto.indexOf(letraAtual)
         let posicaoNova     = ( posicaoAtual ) - numero_casas
         while ( posicaoNova  < 0 ) 
             posicaoNova += alfabeto.length
         
-        letraDesifrada = posicaoAtual > 0 ? alfabeto[posicaoNova] : letraAtual
+        letraDesifrada = posicaoAtual > -1 ? alfabeto[posicaoNova] : letraAtual
+        
         return  textoCriado += letraDesifrada
         
     },"")
+    console.log(textoDecifrado)
+    return textoDecifrado
     
-    return textoDescriptografado
 }
 
 const pegarDadosApi = (token) => {
@@ -45,54 +47,46 @@ const criarArquivo = (nome, dados, encoding = "utf8") =>
         else console.log("s")
     })
 
-const post = ( dados, token) => {
+const evniarDados = (token) => {
     
     console.log()
     formData = {
-            file        : fs.createReadStream(`${__dirname}/${nomeDoArquivo}`)
-        ,   token
+            file        : fs.createReadStream(`${__dirname}\\${nomeDoArquivo}`)
         ,   filetype    : 'json'
         ,   filename    : nomeDoArquivo.replace(".json","")
     }
     headers = {
-        //    "Content-Type"      : "multipart/form-data"
+            "Content-Type"      : "multipart/form-data"  
         //,   "Content-Length"    : `${JSON.stringify(dados).length}`
-            "Authorization"     : `${token}`
+        ,   "Authorization"     : `Basic ${token}`
     }
     
-    let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution`
-    request.post({url, formData, headers},
+   /*  let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`
+    request.post({url, formData},
         (error, res, body) => {
             if (error)
                 return
             
             console.log(`StatusCode: ${res.statusCode}`)
             console.log(body, res)
-        })
-
+        }) */
+    
+    console.log(formData)
     
     
-    
-    /* let req  = request({
-        headers: {
-            "Content-Type": "multipart/form-data",
-            "Content-Length": `${JSON.stringify(dados).length}`,
-            "Authorization" : `${token}`
-        },
-        url: `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`,
+    let req  = request({
+        headers,
+        url : `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`,
         method: 'POST',
-        form :{
-            "file": fs.createReadStream(`./${nomeDoArquivo}`)
-        }
+        formData
     }, function (err, res, body) {
         if (err)
             console.log(err)
         
         console.log(res, body)
-    }); */
+    }); 
     
 }
-const lerArquivo = ( arquivo ) => fs.readFileSync( `${__dirname}/${arquivo}` )
 
 const criarSha1 = ( texto ) => { 
     let criarHash    = crypto.createHash('sha1')
@@ -101,20 +95,18 @@ const criarSha1 = ( texto ) => {
     
     return hashGerado;
 }
-pegarDadosApi(token).then(async ( dados ) => {
+pegarDadosApi(token).then(async ( resposta ) => {
     
-    criarArquivo( nomeDoArquivo, dados )
+    dados = JSON.parse(resposta)
     
-
-    dadosDoArquivo   = lerArquivo(nomeDoArquivo)
-    answerJson       = JSON.parse(dadosDoArquivo)
-    descriptografado = descriptografar(answerJson)
+    descriptografado = descriptografar(dados)
     hashGerado       = criarSha1(descriptografado)
-
-    answerJson['decifrado'           ] = descriptografado
-    answerJson['resumo_criptografico'] = hashGerado
-
-    post(answerJson, token)
+    
+    dados['decifrado'           ] = descriptografado
+    dados['resumo_criptografico'] = hashGerado
+    
+    criarArquivo( nomeDoArquivo, JSON.stringify(dados) )
+    evniarDados(token) 
     
 }).catch(err => console.log(err))
 
