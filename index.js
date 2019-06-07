@@ -1,7 +1,6 @@
 const request   = require('request'     )
 const fs        = require('fs'          )
 const crypto    = require('crypto'      )
-const https     = require('https'       )
 
 const nomeDoArquivo = "answer.json"
 const token = "f0ab3298322ae37b8033e7161e8432dc435ac55f"
@@ -51,7 +50,7 @@ const evniarDados = (token) => {
     
     console.log()
     formData = {
-            file        : fs.createReadStream(`${__dirname}\\${nomeDoArquivo}`)
+            answer      : fs.createReadStream(`${__dirname}\\${nomeDoArquivo}`)
         ,   filetype    : 'json'
         ,   filename    : nomeDoArquivo.replace(".json","")
     }
@@ -61,7 +60,7 @@ const evniarDados = (token) => {
         ,   "Authorization"     : `Basic ${token}`
     }
     
-   /*  let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`
+    let url =  `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`
     request.post({url, formData},
         (error, res, body) => {
             if (error)
@@ -69,22 +68,8 @@ const evniarDados = (token) => {
             
             console.log(`StatusCode: ${res.statusCode}`)
             console.log(body, res)
-        }) */
-    
-    console.log(formData)
-    
-    
-    let req  = request({
-        headers,
-        url : `https://api.codenation.dev/v1/challenge/dev-ps/submit-solution?token=${token}`,
-        method: 'POST',
-        formData
-    }, function (err, res, body) {
-        if (err)
-            console.log(err)
-        
-        console.log(res, body)
-    }); 
+        }
+    ) 
     
 }
 
@@ -95,6 +80,8 @@ const criarSha1 = ( texto ) => {
     
     return hashGerado;
 }
+
+
 pegarDadosApi(token).then(async ( resposta ) => {
     
     dados = JSON.parse(resposta)
@@ -109,13 +96,6 @@ pegarDadosApi(token).then(async ( resposta ) => {
     evniarDados(token) 
     
 }).catch(err => console.log(err))
-
-
-
-
-/* console.log(JSON.stringify(answerJson))
-console.log("hash : ", hashGerado)
-console.log("descriptografado : ", descriptografado) */
 
 
 
